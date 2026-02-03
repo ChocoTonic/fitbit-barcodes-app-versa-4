@@ -1,6 +1,7 @@
 {
     "devDependencies": {
-        "@fitbit/sdk": "~5.0.0"
+        "@fitbit/sdk-cli": "~1.8.0-pre.10",
+        "@fitbit/sdk": "~6.2.0-pre.1"
     },
     "fitbit": {
         "appUUID": "20ba8b5a-f3f9-4f8c-a5a3-10d9eacbd846",
@@ -15,7 +16,9 @@
             "gemini",
             "mira",
             "vulcan",
-            "atlas"
+            "atlas",
+            "rhea",
+            "hera"
         ],
         "i18n": {
             "en": {
