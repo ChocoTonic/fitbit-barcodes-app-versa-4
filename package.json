@@ -1,15 +1,12 @@
 {
     "devDependencies": {
-        "@fitbit/sdk-cli": "~1.8.0-pre.10",
-        "@fitbit/sdk": "~6.2.0-pre.1"
+        "@fitbit/sdk": "~6.2.0-pre.1",
+        "@fitbit/sdk-cli": "~1.8.0-pre.10"
     },
     "fitbit": {
-        "appUUID": "20ba8b5a-f3f9-4f8c-a5a3-10d9eacbd846",
-        "appType": "app",
         "appDisplayName": "Barcodes",
-        "iconFile": "resources/icon.png",
-        "wipeColor": "#4caf50",
-        "requestedPermissions": [],
+        "appType": "app",
+        "appUUID": "20ba8b5a-f3f9-4f8c-a5a3-10d9eacbd846",
         "buildTargets": [
             "higgs",
             "meson",
@@ -24,6 +21,9 @@
             "en": {
                 "name": "Barcodes"
             }
-        }
+        },
+        "iconFile": "resources/icon.png",
+        "requestedPermissions": [],
+        "wipeColor": "#4caf50"
     }
 }
