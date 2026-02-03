@@ -7,12 +7,6 @@
         "appDisplayName": "Barcodes",
         "appType": "app",
         "appUUID": "20ba8b5a-f3f9-4f8c-a5a3-10d9eacbd846",
-        "buildTargets": [
-            "vulcan",
-            "atlas",
-            "rhea",
-            "hera"
-        ],
         "i18n": {
             "en": {
                 "name": "Barcodes"
@@ -20,10 +14,20 @@
         },
         "iconFile": "resources/icon.png",
         "requestedPermissions": [],
-        "wipeColor": "#4caf50"
+        "wipeColor": "#4caf50",
+        "buildTargets": [
+            "vulcan",
+            "atlas",
+            "rhea",
+            "hera"
+        ]
     },
     "scripts": {
-        "build": "fitbit-build",
-        "debug": "fitbit"
+        "build:dev": "npm run helper:env:dev && fitbit-build",
+        "build:prod": "npm run helper:env:prod && fitbit-build",
+        "debug:dev": "npm run helper:env:dev && fitbit",
+        "debug:prod": "npm run helper:env:prod && fitbit",
+        "helper:env:dev": "node scripts/switch-env.js dev",
+        "helper:env:prod": "node scripts/switch-env.js prod"
     }
 }
