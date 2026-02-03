@@ -8,10 +8,6 @@
         "appType": "app",
         "appUUID": "20ba8b5a-f3f9-4f8c-a5a3-10d9eacbd846",
         "buildTargets": [
-            "higgs",
-            "meson",
-            "gemini",
-            "mira",
             "vulcan",
             "atlas",
             "rhea",
