@@ -25,5 +25,9 @@
         "iconFile": "resources/icon.png",
         "requestedPermissions": [],
         "wipeColor": "#4caf50"
+    },
+    "scripts": {
+        "build": "fitbit-build",
+        "debug": "fitbit"
     }
 }
