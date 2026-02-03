@@ -1,40 +1,40 @@
 #caption {
-  font-size: 40;
-  font-family: System-Bold;
-  fill: #000000;
-  text-anchor: middle;
-  text-length: 40;
-  text-overflow: ellipsis;
-  width: 100%;
+    font-size: 40;
+    font-family: System-Bold;
+    fill: #000000;
+    text-anchor: middle;
+    text-length: 40;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
 #intro {
-  font-size: 30;
-  font-family: System-Regular;
-  fill: #000000;
-  display-align: before;
-  text-anchor: middle;
-  text-length: 40;
-  display: none;
+    font-size: 30;
+    font-family: System-Regular;
+    fill: #000000;
+    display-align: before;
+    text-anchor: middle;
+    text-length: 40;
+    display: none;
 }
 
 #frgd {
-  fill: #12D612;
+    fill: #12d612;
 }
 
 .bar {
-  fill: #000000;
-  y: 0;
-  width: 2;
-  height: 100%;
-  display: none;
+    fill: #000000;
+    y: 0;
+    width: 2;
+    height: 100%;
+    display: none;
 }
 
 #bartext {
-  font-size: 32;
-  font-family: System-Light;
-  letter-spacing: 2;
-  fill: #000000;
-  text-anchor: middle;
-  text-length: 40;
+    font-size: 32;
+    font-family: System-Light;
+    letter-spacing: 2;
+    fill: #000000;
+    text-anchor: middle;
+    text-length: 40;
 }
