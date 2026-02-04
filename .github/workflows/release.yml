@@ -1,0 +1,70 @@
+name: Build and Release Artifact
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build-release:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build project
+              run: make build
+
+            - name: Upload build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: fitbit-barcodes-app-fba
+                  path: build/app.fba
+
+            - name: Bump version and get new version
+              id: versioning
+              run: |
+                  VERSION=$(jq -r .version package.json)
+                  echo "Current version: $VERSION"
+                  # Increment patch version
+                  IFS='.' read -r major minor patch <<< "$VERSION"
+                  patch=$((patch+1))
+                  NEW_VERSION="$major.$minor.$patch"
+                  jq --arg v "$NEW_VERSION" '.version = $v' package.json > package.json.tmp && mv package.json.tmp package.json
+                  echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+                  echo "Bumped to $NEW_VERSION"
+
+            - name: Commit and push version bump
+              run: |
+                  git config user.name github-actions
+                  git config user.email github-actions@github.com
+                  git add package.json
+                  git commit -m "chore: bump version to ${{ steps.versioning.outputs.new_version }}"
+                  git push
+              if: github.ref == 'refs/heads/main'
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  tag_name: v${{ steps.versioning.outputs.new_version }}
+                  name: Release v${{ steps.versioning.outputs.new_version }}
+                  body: "Automated build and artifact for version v${{ steps.versioning.outputs.new_version }}."
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              if: github.ref == 'refs/heads/main'
+
+            - name: Upload .fba to release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: build/app.fba
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              if: github.ref == 'refs/heads/main'
