@@ -19,6 +19,50 @@ var allTypes = [
 
 const MAX_BARCODES = 7;
 
+const DEBUG = true;
+
+const MOCK_BARCODES = [
+    { name: "Costco", code: "123456789012", color: "#FF4949", type: 0 },
+    { name: "Target", code: "987654321098", color: "#FEB300", type: 0 },
+    { name: "Walmart", code: "ABC123XYZ", color: "#535BFF", type: 2 },
+    { name: "CVS", code: "5901234123457", color: "#12D612", type: 0 },
+    { name: "Walgreens", code: "MEMBER2024", color: "#FF40FF", type: 1 },
+];
+
+function populateMockData(settingsStorage) {
+    for (let i = 1; i <= MAX_BARCODES; i++) {
+        let mock = MOCK_BARCODES[i - 1];
+        if (mock) {
+            settingsStorage.setItem(
+                "name" + i,
+                JSON.stringify({ name: mock.name }),
+            );
+            settingsStorage.setItem(
+                "code" + i,
+                JSON.stringify({ name: mock.code }),
+            );
+            settingsStorage.setItem("color" + i, '"' + mock.color + '"');
+            settingsStorage.setItem(
+                "type" + i,
+                JSON.stringify({ selected: [mock.type] }),
+            );
+        } else {
+            settingsStorage.setItem("name" + i, JSON.stringify({ name: "" }));
+            settingsStorage.setItem("code" + i, JSON.stringify({ name: "" }));
+            settingsStorage.setItem("color" + i, '"#12D612"');
+            settingsStorage.setItem(
+                "type" + i,
+                JSON.stringify({ selected: [0] }),
+            );
+        }
+    }
+    return (
+        "Populated " +
+        Math.min(MOCK_BARCODES.length, MAX_BARCODES) +
+        " mock barcode(s)!"
+    );
+}
+
 function showWarning(str) {
     try {
         if (!JSON.parse(str).name) return null;
@@ -164,6 +208,23 @@ registerSettingsPage((props) => {
         <Page>
             {showWarning(props.settings.code1)}
             <Toggle settingsKey="bright" label="Increase screen brightness" />
+
+            {DEBUG && (
+                <Section title="Debug">
+                    <Button
+                        label="Populate Mock Data"
+                        onClick={() => {
+                            let result = populateMockData(
+                                props.settingsStorage,
+                            );
+                            props.settingsStorage.setItem(
+                                "importStatus",
+                                result,
+                            );
+                        }}
+                    />
+                </Section>
+            )}
 
             {Array.from({ length: MAX_BARCODES }, (_, i) => i + 1).map((n) => (
                 <Section title={`Barcode ${n}`} key={n}>
