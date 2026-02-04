@@ -1,7 +1,7 @@
 {
     "devDependencies": {
-        "@fitbit/sdk": "~6.2.0-pre.1",
-        "@fitbit/sdk-cli": "~1.8.0-pre.10"
+        "@fitbit/sdk-cli": "~1.7.0",
+        "@fitbit/sdk": "~5.0.0"
     },
     "fitbit": {
         "appDisplayName": "Barcodes",
@@ -17,9 +17,7 @@
         "wipeColor": "#4caf50",
         "buildTargets": [
             "vulcan",
-            "atlas",
-            "rhea",
-            "hera"
+            "atlas"
         ]
     },
     "scripts": {
