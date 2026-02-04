@@ -17,6 +17,8 @@ var allTypes = [
     { name: "Code-39", value: "2" },
 ];
 
+var numBarcodeRows = 10;
+
 function showWarning(str) {
     try {
         if (!JSON.parse(str).name) return null;
@@ -81,9 +83,49 @@ function getLogLines(json) {
     }
 }
 
+var barcodeEntries = [];
+for (var i = 1; i <= numBarcodeRows; i++) {
+    barcodeEntries.push({
+        key: String(i),
+        title: "Barcode " + i,
+        nameKey: "name" + i,
+        codeKey: "code" + i,
+        colorKey: "color" + i,
+        typeKey: "type" + i,
+        namePlaceholder: "e.g., 7-Eleven",
+        codePlaceholder: "e.g., 12345678",
+        defaultColor: allColors[(i - 1) % allColors.length].color,
+    });
+}
+
 registerSettingsPage((props) => {
     let logLines = getLogLines(props.settings.appLog);
     let errorMsg = toObj(props.settings.appError).name;
+
+    let barcodeSections = [];
+    for (let i = 0; i < barcodeEntries.length; i++) {
+        let entry = barcodeEntries[i];
+        barcodeSections.push(
+            <Section key={entry.key} title={entry.title}>
+                <TextInput
+                    settingsKey={entry.nameKey}
+                    title="Name"
+                    placeholder={entry.namePlaceholder}
+                />
+                <TextInput
+                    settingsKey={entry.codeKey}
+                    label="Barcode"
+                    placeholder={entry.codePlaceholder}
+                />
+                <ColorSelect settingsKey={entry.colorKey} colors={allColors} />
+                <Select
+                    settingsKey={entry.typeKey}
+                    label="Encoding"
+                    options={allTypes}
+                />
+            </Section>,
+        );
+    }
 
     return (
         <Page>
@@ -116,138 +158,7 @@ registerSettingsPage((props) => {
             {showWarning(props.settings.code1)}
             <Toggle settingsKey="bright" label="Increase screen brightness" />
 
-            <Section title="Barcode 1">
-                <TextInput
-                    settingsKey="name1"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code1"
-                    label="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color1" colors={allColors} />
-                <Select
-                    settingsKey="type1"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 2">
-                <TextInput
-                    settingsKey="name2"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code2"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color2" colors={allColors} />
-                <Select
-                    settingsKey="type2"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 3">
-                <TextInput
-                    settingsKey="name3"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code3"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color3" colors={allColors} />
-                <Select
-                    settingsKey="type3"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 4">
-                <TextInput
-                    settingsKey="name4"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code4"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color4" colors={allColors} />
-                <Select
-                    settingsKey="type4"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 5">
-                <TextInput
-                    settingsKey="name5"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code5"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color5" colors={allColors} />
-                <Select
-                    settingsKey="type5"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 6">
-                <TextInput
-                    settingsKey="name6"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code6"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color6" colors={allColors} />
-                <Select
-                    settingsKey="type6"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 7">
-                <TextInput
-                    settingsKey="name7"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code7"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color7" colors={allColors} />
-                <Select
-                    settingsKey="type7"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
+            {barcodeSections}
 
             <Section description={prettyAgo(props.settings.clickButton)}>
                 <Button
@@ -265,11 +176,12 @@ registerSettingsPage((props) => {
                 <Button
                     label="Clear All Barcodes"
                     onClick={() => {
-                        for (let i = 1; i <= 7; i++) {
-                            props.settingsStorage.removeItem("name" + i);
-                            props.settingsStorage.removeItem("code" + i);
-                            props.settingsStorage.removeItem("color" + i);
-                            props.settingsStorage.removeItem("type" + i);
+                        for (let i = 0; i < barcodeEntries.length; i++) {
+                            let entry = barcodeEntries[i];
+                            props.settingsStorage.removeItem(entry.nameKey);
+                            props.settingsStorage.removeItem(entry.codeKey);
+                            props.settingsStorage.removeItem(entry.colorKey);
+                            props.settingsStorage.removeItem(entry.typeKey);
                         }
                         props.settingsStorage.removeItem("bright");
                         props.settingsStorage.setItem(
