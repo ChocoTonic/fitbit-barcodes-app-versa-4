@@ -70,6 +70,93 @@ function toObj(json) {
     }
 }
 
+function generateExportJson(settings) {
+    let barcodes = [];
+    for (let i = 1; i <= 7; i++) {
+        let name = toObj(settings["name" + i]).name || "";
+        let code = toObj(settings["code" + i]).name || "";
+        let color = settings["color" + i];
+        let type = toObj(settings["type" + i]).selected;
+
+        if (color && color.charAt(0) === '"') {
+            color = color.substr(1, color.length - 2);
+        }
+
+        if (code) {
+            barcodes.push({
+                name: name,
+                code: code,
+                color: color || "#12D612",
+                type: type ? type[0] : 0,
+            });
+        }
+    }
+    return JSON.stringify(
+        { barcodes: barcodes, bright: settings.bright === "true" },
+        null,
+        2,
+    );
+}
+
+function handleImport(settingsStorage, jsonStr) {
+    try {
+        let data = JSON.parse(jsonStr);
+        if (!data.barcodes || !Array.isArray(data.barcodes)) {
+            return "Invalid format: missing barcodes array";
+        }
+
+        // Clear existing barcodes first
+        for (let i = 1; i <= 7; i++) {
+            settingsStorage.setItem("name" + i, JSON.stringify({ name: "" }));
+            settingsStorage.setItem("code" + i, JSON.stringify({ name: "" }));
+            settingsStorage.setItem("color" + i, '"#12D612"');
+            settingsStorage.setItem(
+                "type" + i,
+                JSON.stringify({ selected: [0] }),
+            );
+        }
+
+        // Import new barcodes (max 7)
+        let count = Math.min(data.barcodes.length, 7);
+        for (let i = 0; i < count; i++) {
+            let barcode = data.barcodes[i];
+            let idx = i + 1;
+            if (barcode.name) {
+                settingsStorage.setItem(
+                    "name" + idx,
+                    JSON.stringify({ name: barcode.name }),
+                );
+            }
+            if (barcode.code) {
+                settingsStorage.setItem(
+                    "code" + idx,
+                    JSON.stringify({ name: barcode.code }),
+                );
+            }
+            if (barcode.color) {
+                settingsStorage.setItem(
+                    "color" + idx,
+                    '"' + barcode.color + '"',
+                );
+            }
+            if (barcode.type !== undefined) {
+                settingsStorage.setItem(
+                    "type" + idx,
+                    JSON.stringify({ selected: [parseInt(barcode.type, 10)] }),
+                );
+            }
+        }
+
+        if (data.bright !== undefined) {
+            settingsStorage.setItem("bright", data.bright ? "true" : "false");
+        }
+
+        return "Imported " + count + " barcode(s) successfully!";
+    } catch (e) {
+        return "Import failed: " + e.message;
+    }
+}
+
 registerSettingsPage((props) => {
     return (
         <Page>
@@ -218,6 +305,51 @@ registerSettingsPage((props) => {
                             "" + Math.floor(Date.now() / 1000),
                         )
                     }
+                />
+            </Section>
+
+            <Section title="Export Settings">
+                <Text>Copy the JSON below to backup your barcodes:</Text>
+                <TextInput
+                    settingsKey="exportData"
+                    title="Export JSON"
+                    value={generateExportJson(props.settings)}
+                    disabled={true}
+                />
+                <Button
+                    label="Generate Export"
+                    onClick={() =>
+                        props.settingsStorage.setItem(
+                            "exportData",
+                            JSON.stringify({
+                                name: generateExportJson(props.settings),
+                            }),
+                        )
+                    }
+                />
+            </Section>
+
+            <Section title="Import Settings">
+                <Text>
+                    Paste JSON to restore barcodes (will overwrite existing):
+                </Text>
+                <TextInput
+                    settingsKey="importData"
+                    title="Import JSON"
+                    placeholder='{"barcodes":[{"name":"...","code":"...","color":"#12D612"}]}'
+                />
+                <Text>{props.settings.importStatus || ""}</Text>
+                <Button
+                    label="Import"
+                    onClick={() => {
+                        let importJson =
+                            toObj(props.settings.importData).name || "";
+                        let result = handleImport(
+                            props.settingsStorage,
+                            importJson,
+                        );
+                        props.settingsStorage.setItem("importStatus", result);
+                    }}
                 />
             </Section>
         </Page>
