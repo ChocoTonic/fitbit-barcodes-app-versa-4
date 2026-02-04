@@ -309,36 +309,21 @@ registerSettingsPage((props) => {
             </Section>
 
             <Section title="Export Settings">
-                <Text>Copy the JSON below to backup your barcodes:</Text>
-                <TextInput
-                    settingsKey="exportData"
-                    title="Export JSON"
-                    value={generateExportJson(props.settings)}
-                    disabled={true}
-                />
-                <Button
-                    label="Generate Export"
-                    onClick={() =>
-                        props.settingsStorage.setItem(
-                            "exportData",
-                            JSON.stringify({
-                                name: generateExportJson(props.settings),
-                            }),
-                        )
-                    }
-                />
+                <Text>Tap to select, then copy your barcode backup:</Text>
+                <Text bold selectable>
+                    {generateExportJson(props.settings)}
+                </Text>
             </Section>
 
             <Section title="Import Settings">
-                <Text>
-                    Paste JSON to restore barcodes (will overwrite existing):
-                </Text>
                 <TextInput
                     settingsKey="importData"
-                    title="Import JSON"
-                    placeholder='{"barcodes":[{"name":"...","code":"...","color":"#12D612"}]}'
+                    title="Paste JSON here"
+                    placeholder='{"barcodes":[{"name":"Store","code":"123","color":"#12D612"}]}'
                 />
-                <Text>{props.settings.importStatus || ""}</Text>
+                {props.settings.importStatus && (
+                    <Text>{props.settings.importStatus}</Text>
+                )}
                 <Button
                     label="Import"
                     onClick={() => {
