@@ -17,6 +17,8 @@ var allTypes = [
     { name: "Code-39", value: "2" },
 ];
 
+const MAX_BARCODES = 7;
+
 function showWarning(str) {
     try {
         if (!JSON.parse(str).name) return null;
@@ -72,7 +74,7 @@ function toObj(json) {
 
 function generateExportJson(settings) {
     let barcodes = [];
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 1; i <= MAX_BARCODES; i++) {
         let name = toObj(settings["name" + i]).name || "";
         let code = toObj(settings["code" + i]).name || "";
         let color = settings["color" + i];
@@ -106,7 +108,7 @@ function handleImport(settingsStorage, jsonStr) {
         }
 
         // Clear existing barcodes first
-        for (let i = 1; i <= 7; i++) {
+        for (let i = 1; i <= MAX_BARCODES; i++) {
             settingsStorage.setItem("name" + i, JSON.stringify({ name: "" }));
             settingsStorage.setItem("code" + i, JSON.stringify({ name: "" }));
             settingsStorage.setItem("color" + i, '"#12D612"');
@@ -116,8 +118,8 @@ function handleImport(settingsStorage, jsonStr) {
             );
         }
 
-        // Import new barcodes (max 7)
-        let count = Math.min(data.barcodes.length, 7);
+        // Import new barcodes
+        let count = Math.min(data.barcodes.length, MAX_BARCODES);
         for (let i = 0; i < count; i++) {
             let barcode = data.barcodes[i];
             let idx = i + 1;
@@ -163,138 +165,26 @@ registerSettingsPage((props) => {
             {showWarning(props.settings.code1)}
             <Toggle settingsKey="bright" label="Increase screen brightness" />
 
-            <Section title="Barcode 1">
-                <TextInput
-                    settingsKey="name1"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code1"
-                    label="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color1" colors={allColors} />
-                <Select
-                    settingsKey="type1"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 2">
-                <TextInput
-                    settingsKey="name2"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code2"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color2" colors={allColors} />
-                <Select
-                    settingsKey="type2"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 3">
-                <TextInput
-                    settingsKey="name3"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code3"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color3" colors={allColors} />
-                <Select
-                    settingsKey="type3"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 4">
-                <TextInput
-                    settingsKey="name4"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code4"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color4" colors={allColors} />
-                <Select
-                    settingsKey="type4"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 5">
-                <TextInput
-                    settingsKey="name5"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code5"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color5" colors={allColors} />
-                <Select
-                    settingsKey="type5"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 6">
-                <TextInput
-                    settingsKey="name6"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code6"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color6" colors={allColors} />
-                <Select
-                    settingsKey="type6"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
-
-            <Section title="Barcode 7">
-                <TextInput
-                    settingsKey="name7"
-                    title="Name"
-                    placeholder="e.g., 7-Eleven"
-                />
-                <TextInput
-                    settingsKey="code7"
-                    title="Barcode"
-                    placeholder="e.g., 12345678"
-                />
-                <ColorSelect settingsKey="color7" colors={allColors} />
-                <Select
-                    settingsKey="type7"
-                    label="Encoding"
-                    options={allTypes}
-                />
-            </Section>
+            {Array.from({ length: MAX_BARCODES }, (_, i) => i + 1).map((n) => (
+                <Section title={`Barcode ${n}`} key={n}>
+                    <TextInput
+                        settingsKey={`name${n}`}
+                        title="Name"
+                        placeholder="e.g., 7-Eleven"
+                    />
+                    <TextInput
+                        settingsKey={`code${n}`}
+                        title="Barcode"
+                        placeholder="e.g., 12345678"
+                    />
+                    <ColorSelect settingsKey={`color${n}`} colors={allColors} />
+                    <Select
+                        settingsKey={`type${n}`}
+                        label="Encoding"
+                        options={allTypes}
+                    />
+                </Section>
+            ))}
 
             <Section description={prettyAgo(props.settings.clickButton)}>
                 <Button
