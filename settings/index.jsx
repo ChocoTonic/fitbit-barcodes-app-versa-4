@@ -19,6 +19,16 @@ var allTypes = [
 
 var numBarcodeRows = 10;
 
+var useMockData = true;
+
+var mockBarcodes = [
+    { name: "Grocery Store", code: "4012345678901", color: "#12D612", type: "0" },
+    { name: "Coffee Shop", code: "5901234123457", color: "#FEB300", type: "0" },
+    { name: "Gym Membership", code: "MEMBER12345", color: "#535BFF", type: "1" },
+    { name: "Library Card", code: "LIB-2024-001", color: "#6FD4ED", type: "2" },
+    { name: "Pharmacy", code: "7501234567890", color: "#FF4949", type: "0" },
+];
+
 function showWarning(str) {
     try {
         if (!JSON.parse(str).name) return null;
@@ -127,6 +137,35 @@ function importBarcodes(props, jsonStr) {
         return true;
     } catch (e) {
         return false;
+    }
+}
+
+function loadMockData(props) {
+    // Clear existing
+    for (let i = 0; i < barcodeEntries.length; i++) {
+        let entry = barcodeEntries[i];
+        props.settingsStorage.removeItem(entry.nameKey);
+        props.settingsStorage.removeItem(entry.codeKey);
+        props.settingsStorage.removeItem(entry.colorKey);
+        props.settingsStorage.removeItem(entry.typeKey);
+    }
+    // Load mock data
+    for (let i = 0; i < mockBarcodes.length && i < barcodeEntries.length; i++) {
+        let mock = mockBarcodes[i];
+        let entry = barcodeEntries[i];
+        props.settingsStorage.setItem(
+            entry.nameKey,
+            JSON.stringify({ name: mock.name }),
+        );
+        props.settingsStorage.setItem(
+            entry.codeKey,
+            JSON.stringify({ name: mock.code }),
+        );
+        props.settingsStorage.setItem(entry.colorKey, mock.color);
+        props.settingsStorage.setItem(
+            entry.typeKey,
+            JSON.stringify({ selected: [mock.type] }),
+        );
     }
 }
 
@@ -245,6 +284,15 @@ registerSettingsPage((props) => {
                     }}
                 />
             </Section>
+
+            {useMockData && (
+                <Section title="Development">
+                    <Button
+                        label="Load Mock Data"
+                        onClick={() => loadMockData(props)}
+                    />
+                </Section>
+            )}
 
             <Section title="Danger Zone">
                 <Button
