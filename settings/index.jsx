@@ -69,6 +69,67 @@ function getLogLines(json) {
     }
 }
 
+function exportBarcodes(props) {
+    let exported = [];
+    for (let i = 0; i < barcodeEntries.length; i++) {
+        let entry = barcodeEntries[i];
+        let name = toObj(props.settings[entry.nameKey]).name || "";
+        let code = toObj(props.settings[entry.codeKey]).name || "";
+        let color = props.settings[entry.colorKey] || "";
+        let typeVal = toObj(props.settings[entry.typeKey]);
+        let type = typeVal.selected ? typeVal.selected[0] : "";
+        if (code) {
+            exported.push({
+                name: name,
+                code: code,
+                color: trim(color),
+                type: type,
+            });
+        }
+    }
+    return JSON.stringify(exported, null, 2);
+}
+
+function importBarcodes(props, jsonStr) {
+    try {
+        let data = JSON.parse(jsonStr);
+        if (!Array.isArray(data)) return false;
+        // Clear existing
+        for (let i = 0; i < barcodeEntries.length; i++) {
+            let entry = barcodeEntries[i];
+            props.settingsStorage.removeItem(entry.nameKey);
+            props.settingsStorage.removeItem(entry.codeKey);
+            props.settingsStorage.removeItem(entry.colorKey);
+            props.settingsStorage.removeItem(entry.typeKey);
+        }
+        // Import new
+        for (let i = 0; i < data.length && i < barcodeEntries.length; i++) {
+            let item = data[i];
+            let entry = barcodeEntries[i];
+            if (item.name)
+                props.settingsStorage.setItem(
+                    entry.nameKey,
+                    JSON.stringify({ name: item.name }),
+                );
+            if (item.code)
+                props.settingsStorage.setItem(
+                    entry.codeKey,
+                    JSON.stringify({ name: item.code }),
+                );
+            if (item.color)
+                props.settingsStorage.setItem(entry.colorKey, item.color);
+            if (item.type)
+                props.settingsStorage.setItem(
+                    entry.typeKey,
+                    JSON.stringify({ selected: [item.type] }),
+                );
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
 var barcodeEntries = [];
 for (var i = 1; i <= numBarcodeRows; i++) {
     barcodeEntries.push({
@@ -87,6 +148,7 @@ for (var i = 1; i <= numBarcodeRows; i++) {
 registerSettingsPage((props) => {
     let logLines = getLogLines(props.settings.appLog);
     let errorMsg = toObj(props.settings.appError).name;
+    let exportData = exportBarcodes(props);
 
     let barcodeSections = [];
     for (let i = 0; i < barcodeEntries.length; i++) {
@@ -145,6 +207,44 @@ registerSettingsPage((props) => {
             <Toggle settingsKey="bright" label="Increase screen brightness" />
 
             {barcodeSections}
+
+            <Section title="Export Barcodes">
+                <Text>Copy this JSON to back up your barcodes:</Text>
+                <TextInput
+                    settingsKey="exportData"
+                    title="Export Data"
+                    value={exportData}
+                    disabled={true}
+                />
+                <Button
+                    label="Refresh Export"
+                    onClick={() => {
+                        props.settingsStorage.setItem(
+                            "exportData",
+                            JSON.stringify({ name: exportBarcodes(props) }),
+                        );
+                    }}
+                />
+            </Section>
+
+            <Section title="Import Barcodes">
+                <Text>Paste JSON here to import barcodes:</Text>
+                <TextInput
+                    settingsKey="importData"
+                    title="Import Data"
+                    placeholder='[{"name":"Store","code":"123","color":"#12D612","type":"0"}]'
+                />
+                <Button
+                    label="Import"
+                    onClick={() => {
+                        let importStr =
+                            toObj(props.settings.importData).name || "";
+                        if (importStr && importBarcodes(props, importStr)) {
+                            props.settingsStorage.removeItem("importData");
+                        }
+                    }}
+                />
+            </Section>
 
             <Section title="Danger Zone">
                 <Button
