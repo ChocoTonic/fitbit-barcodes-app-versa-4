@@ -12,6 +12,8 @@
         "iconFile": "resources/icon.png",
         "requestedPermissions": [],
         "wipeColor": "#4caf50"
+    },
+    "devDependencies": {
+        "jest": "^29.5.0"
     }
 }
-

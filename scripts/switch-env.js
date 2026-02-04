@@ -44,10 +44,13 @@ const currentPackage = JSON.parse(
     fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
 );
 
-// Merge configs - environment config fully replaces devDependencies and buildTargets
+// Merge configs - merge base devDependencies with env-specific ones, env buildTargets
 const finalConfig = {
     type: currentPackage.type,
-    devDependencies: envConfig.devDependencies,
+    devDependencies: {
+        ...(baseConfig.devDependencies || {}),
+        ...envConfig.devDependencies,
+    },
     fitbit: {
         ...baseConfig.fitbit,
         buildTargets: envConfig.buildTargets,
