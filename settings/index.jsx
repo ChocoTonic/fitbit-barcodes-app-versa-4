@@ -50,20 +50,6 @@ function trim(s) {
     return s && s.replace(/^\s+|\s+$/g, "");
 }
 
-function prettyAgo(t) {
-    if (t) {
-        t = Date.now() / 1000 - t;
-        if (t < 60) {
-            return "Saved now!";
-        } else if (t < 60 * 60) {
-            return "Saved " + Math.floor(t / 60) + " minute(s) ago";
-        } else if (t < 24 * 60 * 60) {
-            return "Saved " + Math.floor(t / (60 * 60)) + " hour(s) ago";
-        }
-    }
-    return "";
-}
-
 function toObj(json) {
     if (!json) return {};
     try {
@@ -160,18 +146,6 @@ registerSettingsPage((props) => {
 
             {barcodeSections}
 
-            <Section description={prettyAgo(props.settings.clickButton)}>
-                <Button
-                    label="Save"
-                    onClick={() =>
-                        props.settingsStorage.setItem(
-                            "clickButton",
-                            "" + Math.floor(Date.now() / 1000),
-                        )
-                    }
-                />
-            </Section>
-
             <Section title="Danger Zone">
                 <Button
                     label="Clear All Barcodes"
@@ -184,10 +158,6 @@ registerSettingsPage((props) => {
                             props.settingsStorage.removeItem(entry.typeKey);
                         }
                         props.settingsStorage.removeItem("bright");
-                        props.settingsStorage.setItem(
-                            "clickButton",
-                            "" + Math.floor(Date.now() / 1000),
-                        );
                     }}
                 />
             </Section>
