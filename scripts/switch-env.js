@@ -67,32 +67,11 @@ console.log(`  Build targets: ${envConfig.buildTargets.join(", ")}`);
 // Automatically run npm install after switching
 
 const { execSync } = require("child_process");
-function depsEqual(a, b) {
-    const aKeys = Object.keys(a);
-    const bKeys = Object.keys(b);
-    if (aKeys.length !== bKeys.length) return false;
-    for (const k of aKeys) {
-        if (!(k in b) || a[k] !== b[k]) return false;
-    }
-    return true;
-}
-
-if (
-    !depsEqual(
-        currentPackage.devDependencies || {},
-        envConfig.devDependencies || {},
-    )
-) {
-    try {
-        console.log("Running npm install to update dependencies...");
-        execSync("npm install", { stdio: "inherit", cwd: rootDir });
-        console.log("✓ npm install complete");
-    } catch (err) {
-        console.error("✗ npm install failed:", err.message);
-        process.exit(1);
-    }
-} else {
-    console.log(
-        "✓ devDependencies already match target environment, skipping npm install.",
-    );
+try {
+    console.log("Running npm install to update dependencies...");
+    execSync("npm install", { stdio: "inherit", cwd: rootDir });
+    console.log("✓ npm install complete");
+} catch (err) {
+    console.error("✗ npm install failed:", err.message);
+    process.exit(1);
 }
