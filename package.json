@@ -1,35 +1,36 @@
 {
-    "version": "1.0.7",
-    "type": "module",
-    "devDependencies": {
-        "jest": "^29.5.0",
-        "@fitbit/sdk-cli": "~1.7.0",
-        "@fitbit/sdk": "~5.0.0"
+  "version": "1.0.8",
+  "type": "module",
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "@fitbit/sdk": "~6.2.0-pre.1",
+    "@fitbit/sdk-cli": "~1.8.0-pre.10"
+  },
+  "fitbit": {
+    "appDisplayName": "Barcodes",
+    "appType": "app",
+    "appUUID": "c1f22ab4-77ea-48b7-b443-b3c1c3fd73ff",
+    "i18n": {
+      "en": {
+        "name": "Barcodes"
+      }
     },
-    "fitbit": {
-        "appDisplayName": "Barcodes",
-        "appType": "app",
-        "appUUID": "c1f22ab4-77ea-48b7-b443-b3c1c3fd73ff",
-        "i18n": {
-            "en": {
-                "name": "Barcodes"
-            }
-        },
-        "iconFile": "resources/icon.png",
-        "requestedPermissions": [],
-        "wipeColor": "#4caf50",
-        "buildTargets": [
-            "atlas"
-        ]
-    },
-    "scripts": {
-        "build": "fitbit-build",
-        "build:dev": "npm run helper:env:dev && fitbit-build",
-        "build:prod": "npm run helper:env:prod && fitbit-build",
-        "debug:dev": "npm run helper:env:dev && fitbit",
-        "debug:prod": "npm run helper:env:prod && fitbit",
-        "helper:env:dev": "node scripts/switch-env.js dev",
-        "helper:env:prod": "node scripts/switch-env.js prod",
-        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --coverageReporters=lcov --coverageDirectory=./"
-    }
+    "iconFile": "resources/icon.png",
+    "requestedPermissions": [],
+    "wipeColor": "#4caf50",
+    "buildTargets": [
+      "rhea",
+      "hera"
+    ]
+  },
+  "scripts": {
+    "build": "fitbit-build",
+    "build:dev": "npm run helper:env:dev && fitbit-build",
+    "build:prod": "npm run helper:env:prod && fitbit-build",
+    "debug:dev": "npm run helper:env:dev && fitbit",
+    "debug:prod": "npm run helper:env:prod && fitbit",
+    "helper:env:dev": "node scripts/switch-env.js dev",
+    "helper:env:prod": "node scripts/switch-env.js prod",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --coverageReporters=lcov --coverageDirectory=./"
+  }
 }
