@@ -1,0 +1,20 @@
+{
+    "version": "1.0.7",
+    "_comment": "Base configuration shared across all environments. Do not use directly.",
+    "fitbit": {
+        "appDisplayName": "Barcodes",
+        "appType": "app",
+        "appUUID": "c1f22ab4-77ea-48b7-b443-b3c1c3fd73ff",
+        "i18n": {
+            "en": {
+                "name": "Barcodes"
+            }
+        },
+        "iconFile": "resources/icon.png",
+        "requestedPermissions": [],
+        "wipeColor": "#4caf50"
+    },
+    "devDependencies": {
+        "jest": "^29.5.0"
+    }
+}
