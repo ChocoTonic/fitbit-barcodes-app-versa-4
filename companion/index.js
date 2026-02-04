@@ -45,7 +45,9 @@ function init() {
         setCard(k, store.getItem(k));
     }
 
-    if (me.launchReasons.settingsChanged) sendAll();
+    if (me.launchReasons.settingsChanged) {
+        sendAll();
+    }
 }
 
 init();
@@ -53,14 +55,18 @@ init();
 function sendAll() {
     let tmp = [];
     for (let i = 0; i < cards.length; i++) {
-        if (cards[i] && cards[i].code) {
-            let o = { code: cards[i].code };
-            if (cards[i].name) o.name = encodeURIComponent(cards[i].name);
-            if (cards[i].color) o.color = cards[i].color;
-            if (cards[i].type) o.type = cards[i].type;
-            tmp.push(o);
+        if (!cards[i] || !cards[i].code) {
+            continue;
         }
+
+        let o = { code: cards[i].code };
+        if (cards[i].name) o.name = encodeURIComponent(cards[i].name);
+        if (cards[i].color) o.color = cards[i].color;
+        if (cards[i].type) o.type = cards[i].type;
+
+        tmp.push(o);
     }
+
     tmp = JSON.stringify({ cards: tmp, bright: bright });
     let data = new Uint8Array(tmp.length);
     for (let i = 0; i < data.length; i++) {
