@@ -11,8 +11,13 @@
  * devDependencies and build targets.
  */
 
-const fs = require("fs");
-const path = require("path");
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const env = process.argv[2];
 
@@ -34,13 +39,14 @@ const envConfig = JSON.parse(
     fs.readFileSync(path.join(configDir, `env.${env}.json`), "utf8"),
 );
 
-// Read current package.json to preserve scripts
+// Read current package.json to preserve scripts and type
 const currentPackage = JSON.parse(
     fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
 );
 
 // Merge configs - environment config fully replaces devDependencies and buildTargets
 const finalConfig = {
+    type: currentPackage.type,
     devDependencies: envConfig.devDependencies,
     fitbit: {
         ...baseConfig.fitbit,
@@ -50,7 +56,6 @@ const finalConfig = {
 };
 
 // Write to package.json
-
 fs.writeFileSync(
     path.join(rootDir, "package.json"),
     JSON.stringify(finalConfig, null, 4) + "\n",
@@ -65,8 +70,6 @@ console.log(
 console.log(`  Build targets: ${envConfig.buildTargets.join(", ")}`);
 
 // Automatically run npm install after switching
-
-const { execSync } = require("child_process");
 try {
     console.log("Running npm install to update dependencies...");
     execSync("npm install", { stdio: "inherit", cwd: rootDir });
