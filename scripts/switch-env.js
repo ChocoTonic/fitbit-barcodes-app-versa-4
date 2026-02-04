@@ -44,8 +44,9 @@ const currentPackage = JSON.parse(
     fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
 );
 
-// Merge configs - merge base devDependencies with env-specific ones, env buildTargets
+// Merge configs - merge base devDependencies with env-specific ones, env buildTargets, and version
 const finalConfig = {
+    version: baseConfig.version || "1.0.7",
     type: currentPackage.type,
     devDependencies: {
         ...(baseConfig.devDependencies || {}),
