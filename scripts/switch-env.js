@@ -28,15 +28,15 @@ const configDir = path.join(rootDir, "config");
 
 // Read base config and environment-specific config
 const baseConfig = JSON.parse(
-    fs.readFileSync(path.join(configDir, "package.base.json"), "utf8")
+    fs.readFileSync(path.join(configDir, "package.base.json"), "utf8"),
 );
 const envConfig = JSON.parse(
-    fs.readFileSync(path.join(configDir, `env.${env}.json`), "utf8")
+    fs.readFileSync(path.join(configDir, `env.${env}.json`), "utf8"),
 );
 
 // Read current package.json to preserve scripts
 const currentPackage = JSON.parse(
-    fs.readFileSync(path.join(rootDir, "package.json"), "utf8")
+    fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
 );
 
 // Merge configs - environment config fully replaces devDependencies and buildTargets
@@ -44,18 +44,33 @@ const finalConfig = {
     devDependencies: envConfig.devDependencies,
     fitbit: {
         ...baseConfig.fitbit,
-        buildTargets: envConfig.buildTargets
+        buildTargets: envConfig.buildTargets,
     },
-    scripts: currentPackage.scripts || {}
+    scripts: currentPackage.scripts || {},
 };
 
 // Write to package.json
+
 fs.writeFileSync(
     path.join(rootDir, "package.json"),
-    JSON.stringify(finalConfig, null, 4) + "\n"
+    JSON.stringify(finalConfig, null, 4) + "\n",
 );
 
 console.log(`✓ Switched to ${env.toUpperCase()} environment`);
-console.log(`  SDK: ${Object.entries(envConfig.devDependencies).map(([k, v]) => `${k}@${v}`).join(", ")}`);
+console.log(
+    `  SDK: ${Object.entries(envConfig.devDependencies)
+        .map(([k, v]) => `${k}@${v}`)
+        .join(", ")}`,
+);
 console.log(`  Build targets: ${envConfig.buildTargets.join(", ")}`);
 
+// Automatically run npm install after switching
+const { execSync } = require("child_process");
+try {
+    console.log("Running npm install to update dependencies...");
+    execSync("npm install", { stdio: "inherit", cwd: rootDir });
+    console.log("✓ npm install complete");
+} catch (err) {
+    console.error("✗ npm install failed:", err.message);
+    process.exit(1);
+}
