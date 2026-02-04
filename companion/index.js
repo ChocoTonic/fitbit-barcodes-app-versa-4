@@ -1,17 +1,44 @@
 import { outbox } from "file-transfer";
 import { settingsStorage as store } from "settings";
 import { peerSocket } from "messaging";
-import { me } from "companion";
 
 var cards = [];
 var bright = false;
+var logLines = [];
+
+function log(msg) {
+  let ts = new Date().toLocaleTimeString();
+  logLines.unshift(ts + ": " + msg);
+  if (logLines.length > 20) logLines.pop();
+  store.setItem("appLog", JSON.stringify(logLines));
+}
 
 function trim(s) {
   return s.charAt && s.charAt(0) === '"' ? s.substr(1, s.length - 2) : s;
 }
 
 peerSocket.onmessage = (e) => {
-  if (e.data && e.data.getAll) sendAll();
+  log("Msg from watch: " + JSON.stringify(e.data));
+  if (e.data && e.data.getAll) {
+    log("Watch requested settings");
+    sendAll();
+  }
+  if (e.data && e.data.error) {
+    log("Watch error: " + e.data.error);
+    store.setItem("appError", JSON.stringify({ name: e.data.error }));
+  }
+};
+
+peerSocket.onopen = () => {
+  log("peerSocket OPEN");
+};
+
+peerSocket.onerror = (err) => {
+  log("peerSocket ERROR: " + (err.code || err.message || JSON.stringify(err)));
+};
+
+peerSocket.onclose = () => {
+  log("peerSocket CLOSED");
 };
 
 store.onchange = (e) => {
@@ -40,12 +67,27 @@ function setCard(name, value) {
 }
 
 function init() {
+  log("Companion starting");
+
   for (let i = store.length - 1; i >= 0; i--) {
     let k = store.key(i);
     setCard(k, store.getItem(k));
   }
 
-  if (me.launchReasons.settingsChanged) sendAll();
+  // Pre-fill first barcode slot if empty for testing
+  if (!store.getItem("code1")) {
+    log("No barcodes, adding sample");
+    store.setItem("name1", JSON.stringify({ name: "Sample" }));
+    store.setItem("code1", JSON.stringify({ name: "12345678" }));
+    store.setItem("color1", "#12D612");
+    setCard("name1", store.getItem("name1"));
+    setCard("code1", store.getItem("code1"));
+    setCard("color1", store.getItem("color1"));
+  }
+
+  log("Init complete, sending to watch");
+  // Always send settings to watch on companion launch
+  sendAll();
 }
 
 init();
@@ -61,10 +103,13 @@ function sendAll() {
       tmp.push(o);
     }
   }
-  tmp = JSON.stringify({ cards: tmp, bright: bright });
-  let data = new Uint8Array(tmp.length);
-  for (let i = 0; i < data.length; i++) {
-    data[i] = tmp.charCodeAt(i);
-  }
-  outbox.enqueue("settings.txt", data);
+  log("Sending " + tmp.length + " card(s) via file-transfer");
+  let payload = { cards: tmp, bright: bright };
+  let jsonStr = JSON.stringify(payload);
+  let encoder = new TextEncoder();
+  let data = encoder.encode(jsonStr);
+  outbox
+    .enqueue("settings.json", data.buffer)
+    .then(() => log("File enqueued OK"))
+    .catch((err) => log("Enqueue FAIL: " + err));
 }

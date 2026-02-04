@@ -69,9 +69,44 @@ function toObj(json) {
   }
 }
 
+function getLogLines(json) {
+  if (!json) return [];
+  try {
+    let arr = JSON.parse(json);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    return [];
+  }
+}
+
 registerSettingsPage((props) => {
+  let logLines = getLogLines(props.settings.appLog);
+  let errorMsg = toObj(props.settings.appError).name;
+
   return (
     <Page>
+      <Section title="Status Log">
+        {logLines.length === 0 ? (
+          <Text>No activity yet. Open the app on your watch.</Text>
+        ) : (
+          logLines.map((line, i) => <Text key={i}>{line}</Text>)
+        )}
+        {logLines.length > 0 && (
+          <Button
+            label="Clear Log"
+            onClick={() => props.settingsStorage.removeItem("appLog")}
+          />
+        )}
+      </Section>
+      {errorMsg && (
+        <Section title="App Error">
+          <Text bold>{errorMsg}</Text>
+          <Button
+            label="Clear Error"
+            onClick={() => props.settingsStorage.removeItem("appError")}
+          />
+        </Section>
+      )}
       {showWarning(props.settings.code1)}
       <Toggle settingsKey="bright" label="Increase screen brightness" />
 
@@ -189,6 +224,25 @@ registerSettingsPage((props) => {
               "" + Math.floor(Date.now() / 1000),
             )
           }
+        />
+      </Section>
+
+      <Section title="Danger Zone">
+        <Button
+          label="Clear All Barcodes"
+          onClick={() => {
+            for (let i = 1; i <= 7; i++) {
+              props.settingsStorage.removeItem("name" + i);
+              props.settingsStorage.removeItem("code" + i);
+              props.settingsStorage.removeItem("color" + i);
+              props.settingsStorage.removeItem("type" + i);
+            }
+            props.settingsStorage.removeItem("bright");
+            props.settingsStorage.setItem(
+              "clickButton",
+              "" + Math.floor(Date.now() / 1000),
+            );
+          }}
         />
       </Section>
     </Page>

@@ -14,18 +14,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+import { me } from "appbit";
+import { display } from "display";
 import document from "document";
 import { inbox } from "file-transfer";
-import { display } from "display";
+import { readFileSync } from "fs";
 import { vibration } from "haptics";
 import { peerSocket } from "messaging";
-import { me } from "appbit";
-import fs from "fs";
 
 var settings = {};
 var lastClearedBars = 0;
 var selected = 0;
 var keepOpenUntil = Date.now() + 180000;
+
+function reportError(err) {
+  try {
+    let msg = "";
+    if (err) {
+      if (err.message) msg = err.message + " ";
+      if (err.stack) msg += err.stack;
+      if (!msg) msg = String(err);
+    }
+    if (peerSocket.readyState === peerSocket.OPEN) {
+      peerSocket.send({ error: msg.substring(0, 200) });
+    }
+  } catch (e) {}
+}
 
 var frgd = document.getElementById("frgd");
 var barname = document.getElementById("caption");
@@ -42,14 +56,9 @@ function init() {
     }
   }
 
-  try {
-    settings = fs.readFileSync("settings.txt", "json");
-  } catch (e) {
-    peerSocket.onopen = () => {
-      for (let o in settings) return;
-      peerSocket.send({ getAll: true });
-    };
-  }
+  peerSocket.onopen = () => {
+    peerSocket.send({ getAll: true });
+  };
 
   pendingFiles();
   inbox.onnewfile = pendingFiles;
@@ -66,7 +75,11 @@ function init() {
   };
 }
 
-init();
+try {
+  init();
+} catch (e) {
+  reportError(e);
+}
 
 function onKeyDown(e) {
   if (e.key === "up") {
@@ -127,20 +140,23 @@ function flipDeck(dir) {
 }
 
 function pendingFiles() {
-  let temp;
-  while ((temp = inbox.nextFile())) {
-    vibration.start("nudge");
-    display.poke();
-    settings = fs.readFileSync(temp, "json");
-    fs.unlinkSync(temp);
-    if (settings.cards) {
-      for (let i = 0; i < settings.cards.length; i++) {
-        let card = settings.cards[i];
-        if (card.name) card.name = decodeURIComponent(card.name);
+  try {
+    let fileName;
+    while ((fileName = inbox.nextFile())) {
+      vibration.start("nudge");
+      display.poke();
+      // Read file as JSON
+      settings = readFileSync("/private/data/" + fileName, "json");
+      if (settings && settings.cards) {
+        for (let i = 0; i < settings.cards.length; i++) {
+          let card = settings.cards[i];
+          if (card.name) card.name = decodeURIComponent(card.name);
+        }
       }
+      settingsChanged();
     }
-    fs.writeFileSync("settings.txt", settings, "json");
-    settingsChanged();
+  } catch (e) {
+    reportError(e);
   }
 }
 
