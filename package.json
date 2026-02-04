@@ -16,7 +16,6 @@
         "requestedPermissions": [],
         "wipeColor": "#4caf50",
         "buildTargets": [
-            "vulcan",
             "atlas"
         ]
     },
