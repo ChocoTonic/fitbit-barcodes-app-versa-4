@@ -1,2 +1,5 @@
 build/
+lcov-report/
 node_modules/
+
+lcov.info
