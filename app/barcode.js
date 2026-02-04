@@ -1,8 +1,3 @@
-/* Barcode encoding functions for Barcodes app
-Copyright (C) 2017  Terry Yuen
-License: GPL-3.0
-*/
-
 export function toCode39(str) {
     const codes =
         "a6dd2bb2bd95a6b" + //0~4
