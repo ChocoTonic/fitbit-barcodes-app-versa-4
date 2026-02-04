@@ -11,3 +11,4 @@ Features:
 - Store up to 7 barcodes on the Ionic
 - Direct link to app store (open with phone):
   https://gam.fitbit.com/gallery/app/20ba8b5a-f3f9-4f8c-a5a3-10d9eacbd846
+- https://github.com/tyuen/fitbit-barcodes-app
