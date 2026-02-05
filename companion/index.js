@@ -44,6 +44,16 @@ peerSocket.onclose = () => {
 };
 
 store.onchange = (e) => {
+    // Ignore non-barcode keys like exportData, importData, appLog, appError
+    if (
+        e.key === "exportData" ||
+        e.key === "importData" ||
+        e.key === "appLog" ||
+        e.key === "appError" ||
+        e.key === "clickButton"
+    ) {
+        return;
+    }
     setCard(e.key, e.newValue);
     sendAll();
 };

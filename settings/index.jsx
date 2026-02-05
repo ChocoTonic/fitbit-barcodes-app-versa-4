@@ -22,9 +22,19 @@ var numBarcodeRows = 10;
 var useMockData = true;
 
 var mockBarcodes = [
-    { name: "Grocery Store", code: "4012345678901", color: "#12D612", type: "0" },
+    {
+        name: "Grocery Store",
+        code: "4012345678901",
+        color: "#12D612",
+        type: "0",
+    },
     { name: "Coffee Shop", code: "5901234123457", color: "#FEB300", type: "0" },
-    { name: "Gym Membership", code: "MEMBER12345", color: "#535BFF", type: "1" },
+    {
+        name: "Gym Membership",
+        code: "MEMBER12345",
+        color: "#535BFF",
+        type: "1",
+    },
     { name: "Library Card", code: "LIB-2024-001", color: "#6FD4ED", type: "2" },
     { name: "Pharmacy", code: "7501234567890", color: "#FF4949", type: "0" },
 ];
@@ -187,7 +197,6 @@ for (var i = 1; i <= numBarcodeRows; i++) {
 registerSettingsPage((props) => {
     let logLines = getLogLines(props.settings.appLog);
     let errorMsg = toObj(props.settings.appError).name;
-    let exportData = exportBarcodes(props);
 
     let barcodeSections = [];
     for (let i = 0; i < barcodeEntries.length; i++) {
@@ -248,15 +257,9 @@ registerSettingsPage((props) => {
             {barcodeSections}
 
             <Section title="Export Barcodes">
-                <Text>Copy this JSON to back up your barcodes:</Text>
-                <TextInput
-                    settingsKey="exportData"
-                    title="Export Data"
-                    value={exportData}
-                    disabled={true}
-                />
+                <Text>Click "Generate Export" then copy the JSON:</Text>
                 <Button
-                    label="Refresh Export"
+                    label="Generate Export"
                     onClick={() => {
                         props.settingsStorage.setItem(
                             "exportData",
@@ -264,6 +267,7 @@ registerSettingsPage((props) => {
                         );
                     }}
                 />
+                <TextInput settingsKey="exportData" title="Export Data" />
             </Section>
 
             <Section title="Import Barcodes">
