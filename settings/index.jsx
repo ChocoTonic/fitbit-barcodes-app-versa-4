@@ -112,7 +112,12 @@ function exportBarcodes(props) {
 
 function importBarcodes(props, jsonStr) {
     try {
-        let data = JSON.parse(jsonStr);
+        // Handle potential double-encoding or extra quotes
+        let str = jsonStr.trim();
+        if (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"') {
+            str = str.slice(1, -1);
+        }
+        let data = JSON.parse(str);
         if (!Array.isArray(data)) return false;
         // Clear existing
         for (let i = 0; i < barcodeEntries.length; i++) {
@@ -280,8 +285,17 @@ registerSettingsPage((props) => {
                 <Button
                     label="Import"
                     onClick={() => {
-                        let importStr =
-                            toObj(props.settings.importData).name || "";
+                        let raw = props.settings.importData;
+                        let importStr = "";
+                        if (raw) {
+                            // Try parsing as JSON object with name property
+                            try {
+                                let parsed = JSON.parse(raw);
+                                importStr = parsed.name || raw;
+                            } catch (e) {
+                                importStr = raw;
+                            }
+                        }
                         if (importStr && importBarcodes(props, importStr)) {
                             props.settingsStorage.removeItem("importData");
                         }
